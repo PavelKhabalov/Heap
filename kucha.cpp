@@ -24,7 +24,7 @@ typedef struct {
 
 int comp_int(int a, int b);
 
-heap_t *new_heap(int capacity, int (*compare) (elem_t, elem_t) = comp_int); // compare - функция возвращающая число > 0 если первый элемент больше второго, < 0 если меньше, 0 если оба равны
+heap_t *new_heap(int capacity, int (*compare) (elem_t, elem_t) = comp_int, elem_t *array = NULL, int size = 0); // compare - функция возвращающая число > 0 если первый элемент больше второго, < 0 если меньше, 0 если оба равны
 
 heap_t *change_cap(heap_t *heap, int new_cap);
 
@@ -38,14 +38,17 @@ int sift_down(heap_t *heap, int pos);
 
 elem_t get_root(heap_t *heap);
 
-heap_t *arr_to_heap(elem_t *arr, int size);
+heap_t *arr_to_heap(heap_t *heap, elem_t *arr, int size);
 
+int comp(elem_t a, elem_t b) {
+	return b - a;
+}
 
 
 
 int main() {
     int arr[7] = {10, 4, 7, 8, 2, 1, 3};
-	heap_t *heap = arr_to_heap(arr, 7);
+	heap_t *heap = new_heap(7, comp, arr, 7);
 
 
 
@@ -69,14 +72,34 @@ int main() {
 
 
 
-heap_t *new_heap(int capacity, int (*compare) (elem_t, elem_t)) {
+heap_t *new_heap(int capacity, int (*compare) (elem_t, elem_t), elem_t *array, int size) {
 	heap_t *heap = (heap_t*) calloc (1, sizeof(heap_t));
 	Data = (elem_t*) calloc (capacity, sizeof(elem_t));
 	Size = 0;
 	Cap = capacity;
 	Comp = compare;
 
+	if (array) {
+		arr_to_heap(heap, array, size);
+	}
+
 	return heap;
+}
+
+int clear_heap(heap_t *heap) {
+	free(Data);
+	Data = NULL;
+	Size = 0;
+	Cap = 0;
+
+	return 0;
+}
+
+int delete_heap(heap_t *heap) {
+	clear_heap(heap);
+	free(heap);
+
+	return 0;
 }
 
 heap_t *change_cap(heap_t *heap, int new_cap) {
@@ -140,8 +163,10 @@ int sift_down(heap_t *heap, int pos) {
 	sift_down(heap, largest);
 }
 
-heap_t *arr_to_heap(elem_t *arr, int size) {
-	heap_t *heap = new_heap(size + 1);
+heap_t *arr_to_heap(heap_t *heap, elem_t *arr, int size) {
+	if (Cap < size) {
+		change_cap(heap, size + 1);
+	}
 	Size = size;
 
 	for (int i = 0; i < size; i++) {
