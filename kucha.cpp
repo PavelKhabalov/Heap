@@ -28,6 +28,8 @@ heap_t *new_heap(int capacity, int (*compare) (elem_t, elem_t) = comp_int); // c
 
 heap_t *change_cap(heap_t *heap, int new_cap);
 
+int set_comp(heap_t *heap, int (*compare) (elem_t, elem_t));
+
 int heap_push(heap_t *heap, elem_t elem);
 
 int sift_up(heap_t *heap, int pos);
@@ -151,6 +153,12 @@ heap_t *arr_to_heap(elem_t *arr, int size) {
 	}
 
 	return heap;
+}
+
+int set_comp(heap_t *heap, int (*compare) (elem_t, elem_t)) {
+	Comp = compare;
+
+	return 0;
 }
 
 elem_t get_root(heap_t *heap) {
